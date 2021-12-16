@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: test-service
+  template:
+    metadata:
+      labels:
+        component: test-service
+    spec:
+      containers:
+        - name: test
+          image: kumaresanpvt/test-nginx:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 200m
+            requests:
+              memory: 250Mi
+              cpu: 100m
+      imagePullSecrets:
+        - name: regcred
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+  namespace: test
+spec:
+  type: NodePort
+  selector:
+    component: test-service
+  ports:
+    - port: 80
+      nodePort: 31500
+      targetPort: 80
